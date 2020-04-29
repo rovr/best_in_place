@@ -17,13 +17,19 @@ module BestInPlace
 
       value = real_object.send(field)
 
-      if opts[:collection] or type == :checkbox
+      if opts[:collection] || type == :checkbox
         collection = opts[:collection]
         value = value.to_s
         collection = best_in_place_default_collection if collection.blank?
         collection = best_in_place_collection_builder(type, collection)
-        # in our project we need to have ability to display values that not in the select box collection
-        display_value = value # collection.flat_map{|a| a[0].to_s == value ? a[1] : nil }.compact[0]
+
+        display_value = if type == :checkbox
+                          collection.flat_map { |a| a[0].to_s == value ? a[1] : nil }.compact[0]
+                        else
+                          # in our project we need to have ability to display values that not in the select box collection
+                          value
+                        end
+
         collection = collection.to_json
         options[:data]['bip-collection'] = html_escape(collection)
       end
